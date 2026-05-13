@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from "http";
 import { productService } from "../service/product.service";
 import type { IProduct } from "../types/product.type";
 import parseBody from "../utility/parseBody";
+import sendResponse from "../utility/sendResponse";
 
 const productController = async (req: IncomingMessage, res: ServerResponse) => {
   const url = req.url;
@@ -14,117 +15,123 @@ const productController = async (req: IncomingMessage, res: ServerResponse) => {
 
   //   get all products
   if (url === "/products" && method === "GET") {
-    const products = await productService.readProduct();
+    try {
+      const products = await productService.readProduct();
 
-    res.writeHead(200, { "content-type": "application/json" });
-    res.end(
-      JSON.stringify({
-        message: "Products Retrived Successfully",
-        data: products,
-      }),
-    );
+      return sendResponse(
+        res,
+        200,
+        true,
+        "Products Retrived Successfully",
+        products,
+      );
+    } catch (error) {
+      return sendResponse(res, 500, false, "Something Went Wrong", error);
+    }
   } else if (method === "GET" && id !== null) {
     //   Get Single Product
-    const products = await productService.readProduct();
 
-    const product = products.find((d: IProduct) => d.id === id);
+    try {
+      const products = await productService.readProduct();
 
-    if (!product) {
-      res.writeHead(404, { "content-type": "application/json" });
-      res.end(
-        JSON.stringify({
-          message: "Product Not Found",
-          data: null,
-        }),
+      const product = products.find((d: IProduct) => d.id === id);
+
+      if (!product) {
+        return sendResponse(res, 404, true, "Product Not Found", null);
+      }
+
+      return sendResponse(
+        res,
+        200,
+        true,
+        "Product Retrived Successfully",
+        products,
       );
+    } catch (error) {
+      return sendResponse(res, 500, false, "Something Went Wrong", error);
     }
-
-    res.writeHead(200, { "content-type": "application/json" });
-    res.end(
-      JSON.stringify({
-        message: "Product Retrived Successfully",
-        data: product,
-      }),
-    );
   } else if (url === "/products" && method === "POST") {
-    const body = await parseBody(req);
+    try {
+      const body = await parseBody(req);
 
-    const products = await productService.readProduct();
+      const products = await productService.readProduct();
 
-    const newProduct = {
-      id: Date.now(),
-      ...body,
-    };
+      const newProduct = {
+        id: Date.now(),
+        ...body,
+      };
 
-    products.push(newProduct);
-    // console.log("products", products);
-    productService.insertProduct(products);
-    res.writeHead(200, { "content-type": "application/json" });
-    res.end(
-      JSON.stringify({
-        message: "Product Post Successfully",
-        data: products,
-      }),
-    );
+      products.push(newProduct);
+
+      productService.insertProduct(products);
+
+      return sendResponse(
+        res,
+        200,
+        true,
+        "Product Post Successfully",
+        products,
+      );
+    } catch (error) {
+      return sendResponse(res, 500, false, "Something Went Wrong", error);
+    }
   } else if (method === "PUT" && id !== null) {
     //   Put Single Product
-    const products = await productService.readProduct();
 
-    const body = await parseBody(req);
+    try {
+      const products = await productService.readProduct();
 
-    const index = products.findIndex((d: IProduct) => d.id === id);
+      const body = await parseBody(req);
 
-    if (index < 0) {
-      res.writeHead(404, { "content-type": "application/json" });
-      res.end(
-        JSON.stringify({
-          message: "Product Not Found",
-          data: null,
-        }),
+      const index = products.findIndex((d: IProduct) => d.id === id);
+
+      if (index < 0) {
+        return sendResponse(res, 404, true, "Product Not Found", null);
+      }
+
+      const updateProduct = {
+        id: products[index].id,
+        ...body,
+      };
+
+      products[index] = updateProduct;
+      productService.insertProduct(products);
+
+      return sendResponse(
+        res,
+        200,
+        true,
+        "Product Update Successfully",
+        products,
       );
+    } catch (error) {
+      return sendResponse(res, 500, false, "Something Went Wrong", error);
     }
-
-    const updateProduct = {
-      id: products[index].id,
-      ...body,
-    };
-
-    products[index] = updateProduct;
-    productService.insertProduct(products);
-
-    res.writeHead(200, { "content-type": "application/json" });
-    res.end(
-      JSON.stringify({
-        message: "Product Update Successfully",
-        data: products,
-      }),
-    );
   } else if (method === "DELETE" && id !== null) {
     //   Delete Product
-    const products = await productService.readProduct();
 
-    const index = products.findIndex((d: IProduct) => d.id === id);
+    try {
+      const products = await productService.readProduct();
 
-    if (index < 0) {
-      res.writeHead(404, { "content-type": "application/json" });
-      res.end(
-        JSON.stringify({
-          message: "Product Not Found",
-          data: null,
-        }),
+      const index = products.findIndex((d: IProduct) => d.id === id);
+
+      if (index < 0) {
+        return sendResponse(res, 404, true, "Product Not Found", null);
+      }
+
+      products.splice(index, 1);
+      productService.insertProduct(products);
+
+      return sendResponse(
+        res,
+        200,
+        true,
+        "Product Delete Successfully",
+        products,
       );
+    } catch (error) {
+      return sendResponse(res, 500, false, "Something Went Wrong", error);
     }
-
-    products.splice(index, 1);
-    productService.insertProduct(products);
-
-    res.writeHead(200, { "content-type": "application/json" });
-    res.end(
-      JSON.stringify({
-        message: "Product Delete Successfully",
-        data: products,
-      }),
-    );
   }
 };
 
