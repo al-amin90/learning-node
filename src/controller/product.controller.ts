@@ -1,18 +1,16 @@
 import type { IncomingMessage, ServerResponse } from "http";
 import { productService } from "../service/product.service";
 import type { IProduct } from "../types/product.type";
+import parseBody from "../utility/parseBody";
 
 const productController = async (req: IncomingMessage, res: ServerResponse) => {
   const url = req.url;
   const method = req.method;
 
   const urlParts = url?.split("/");
-  console.log("urlParts", urlParts);
 
   const id =
     urlParts && urlParts[1] === "products" ? Number(urlParts[2]) : null;
-
-  console.log("id", id);
 
   //   get all products
   if (url === "/products" && method === "GET") {
@@ -36,6 +34,17 @@ const productController = async (req: IncomingMessage, res: ServerResponse) => {
       JSON.stringify({
         message: "Product Retrived Successfully",
         data: product,
+      }),
+    );
+  } else if (url === "/products" && method === "POST") {
+    const body = await parseBody(req);
+
+    console.log("body", body);
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(
+      JSON.stringify({
+        message: "Product Post Successfully",
+        //   data: product,
       }),
     );
   }
