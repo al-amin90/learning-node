@@ -2,5 +2,10 @@
   { "id": 1, "name": "Gig", "price": 122, "category": "Silver Eagle" },
   { "id": 2, "name": "Phoenix", "price": 299, "category": "Golden Crown" },
   { "id": 3, "name": "Dragon Scale", "price": 450, "category": "Mystic Relic" },
-  { "id": 1778670343593, "name": "Karim Ahmed", "price": 344 }
+  {
+    "id": 1778670343593,
+    "name": "Karim Ahmed - 1",
+    "price": 344,
+    "category": "Mystic Relic - 1"
+  }
 ]
