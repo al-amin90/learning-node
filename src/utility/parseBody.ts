@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "http";
 
-const parseBody = async (req: IncomingMessage) => {
+const parseBody = async (req: IncomingMessage): Promise<any> => {
   return new Promise((resolve, reject) => {
     let body = "";
 
@@ -10,7 +10,7 @@ const parseBody = async (req: IncomingMessage) => {
 
     req.on("end", () => {
       try {
-        resolve(body);
+        resolve(JSON.parse(body));
       } catch (error) {
         reject(error);
       }

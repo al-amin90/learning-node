@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import path from "path";
 
 const filePath = path.join(process.cwd() + "/src/database/db.json");
@@ -10,4 +10,9 @@ const readProduct = () => {
   return JSON.parse(products);
 };
 
-export const productService = { readProduct };
+const insertProduct = (payload: any) => {
+  //   console.log(payload);
+  writeFileSync(filePath, JSON.stringify(payload));
+};
+
+export const productService = { readProduct, insertProduct };

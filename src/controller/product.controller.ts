@@ -39,12 +39,21 @@ const productController = async (req: IncomingMessage, res: ServerResponse) => {
   } else if (url === "/products" && method === "POST") {
     const body = await parseBody(req);
 
-    console.log("body", body);
+    const products = await productService.readProduct();
+
+    const newProduct = {
+      id: Date.now(),
+      ...body,
+    };
+
+    products.push(newProduct);
+    // console.log("products", products);
+    productService.insertProduct(products);
     res.writeHead(200, { "content-type": "application/json" });
     res.end(
       JSON.stringify({
         message: "Product Post Successfully",
-        //   data: product,
+        data: products,
       }),
     );
   }
